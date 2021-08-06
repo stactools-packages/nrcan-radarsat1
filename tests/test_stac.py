@@ -1,6 +1,6 @@
 import unittest
 
-from stactools.ephemeral import stac
+from stactools.nrcan_radarsat1 import stac
 
 
 class StacTest(unittest.TestCase):

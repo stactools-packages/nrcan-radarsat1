@@ -1,14 +1,14 @@
-# stactools-ephemeral
+# stactools-nrcan-radarsat1
 
-- Name: ephemeral
-- Package: `stactools.ephemeral`
-- PyPI: https://pypi.org/project/stactools-ephemeral/
+- Name: nrcan-radarsat1
+- Package: `stactools.nrcan_radarsat1`
+- PyPI: https://pypi.org/project/stactools-nrcan-radarsat1/
 - Owner: @githubusername
 - Dataset homepage: http://example.com
 - STAC extensions used:
   - [proj](https://github.com/stac-extensions/projection/)
 - Extra fields:
-  - `ephemeral:custom`: A custom attribute
+  - `nrcan-radarsat1:custom`: A custom attribute
 
 A short description of the package and its usage.
 
@@ -24,7 +24,7 @@ A short description of the package and its usage.
 Description of the command line functions
 
 ```bash
-$ stac ephemeral create-item source destination
+$ stac nrcan-radarsat1 create-item source destination
 ```
 
-Use `stac ephemeral --help` to see all subcommands and options.
+Use `stac nrcan-radarsat1 --help` to see all subcommands and options.
