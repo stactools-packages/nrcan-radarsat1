@@ -1,21 +1,21 @@
 import click
 import logging
 
-from stactools.ephemeral import stac
+from stactools.nrcan_radarsat1 import stac
 
 logger = logging.getLogger(__name__)
 
 
-def create_ephemeralcmd_command(cli):
-    """Creates the stactools-ephemeral command line utility."""
+def create_nrcanradarsat1_command(cli):
+    """Creates the stactools-nrcan-radarsat1 command line utility."""
     @cli.group(
-        "ephemeralcmd",
-        short_help=("Commands for working with stactools-ephemeral"),
+        "nrcanradarsat1",
+        short_help=("Commands for working with stactools-nrcan-radarsat1"),
     )
-    def ephemeralcmd():
+    def nrcanradarsat1():
         pass
 
-    @ephemeralcmd.command(
+    @nrcanradarsat1.command(
         "create-collection",
         short_help="Creates a STAC collection",
     )
@@ -34,7 +34,7 @@ def create_ephemeralcmd_command(cli):
 
         return None
 
-    @ephemeralcmd.command("create-item", short_help="Create a STAC item")
+    @nrcanradarsat1.command("create-item", short_help="Create a STAC item")
     @click.argument("source")
     @click.argument("destination")
     def create_item_command(source: str, destination: str):
@@ -50,4 +50,4 @@ def create_ephemeralcmd_command(cli):
 
         return None
 
-    return ephemeralcmd
+    return nrcanradarsat1
