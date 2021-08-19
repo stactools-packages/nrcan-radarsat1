@@ -19,7 +19,6 @@ def create_collection(metadata_url: str) -> pystac.Collection:
 
         Args:
         metadata_url (str): Location to save the output STAC Collection json
-        
         Returns:
         pystac.Collection: pystac collection object
     """

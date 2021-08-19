@@ -68,8 +68,7 @@ class Rsat_Metadata():
                    scale can be 1,2,4,8,16. scale=1 creates most precise footprint
                    at the expense of reading all pixel values. scale=2 reads 1/4 amount
                    of data be overestimates footprint by at least 1pixel (20 meters).
-            precision: number of decimals to store for bounding box coordinates
-                
+            precision: number of decimals to store for bounding box coordinates  
             """
 
             #Get bounding box for raster in Lat/Long
@@ -128,7 +127,6 @@ class Rsat_Metadata():
             Args:
             filename: name of cog file
             metadata: dict of metadata
-            
             Returns:
             metadata: updated metadata dictionary
             """
@@ -184,7 +182,6 @@ class Rsat_Metadata():
 def download_asset(cog_href: str, outpath: str) -> Optional[str]:
     """
     Download COG asset
-    
     Args:
         cog_href (str): Location of associated COG asset
         href url should point to radarsat-1 data in s3 storage, e.g. "s3://radarsat-r1-l1-cog/2009/2/RS1_X0597984_F1_20090205_094341_HH_SGF.tif"
