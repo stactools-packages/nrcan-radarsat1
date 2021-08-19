@@ -19,6 +19,7 @@ def create_collection(metadata_url: str) -> pystac.Collection:
 
         Args:
         metadata_url (str): Location to save the output STAC Collection json
+
         Returns:
         pystac.Collection: pystac collection object
     """
@@ -124,8 +125,8 @@ def create_item(metadata_url: str, cog_href: str) -> pystac.Item:
     # SAT https://github.com/stac-extensions/sat
     sat = SatExtension.ext(item, add_if_missing=True)
     sat.orbit_state = OrbitState(rsat_metadata.orbit_state.lower())
-    sat.absolute_orbit = rsat_metadata.absolute_orbit  #Not totally sure this one is correct, but I believe it is
-    #sat.relative_orbit = rsat_metadata.relative_orbit #Can't find this property for Radarsat-1
+    sat.absolute_orbit = rsat_metadata.absolute_orbit  # Not totally sure this one is correct, but I believe it is
+    # sat.relative_orbit = rsat_metadata.relative_orbit # Can't find this property for Radarsat-1
 
     # PROJECTION https://github.com/stac-extensions/projection
     projection = ProjectionExtension.ext(item, add_if_missing=True)

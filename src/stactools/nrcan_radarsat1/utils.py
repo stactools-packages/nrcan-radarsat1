@@ -36,22 +36,22 @@ class Rsat_Metadata():
             with rasterio.Env(AWS_NO_SIGN_REQUEST='YES',
                               GDAL_DISABLE_READDIR_ON_OPEN='EMPTY_DIR'):
                 with rasterio.open(href) as src:
-                    #Retrieve metadata stored in COG file
+                    # Retrieve metadata stored in COG file
                     metadata = src.profile
                     metadata.update(src.tags())
                     metadata['shape'] = src.shape
 
-                    #Retrieve COG CRS. Note: these COGs do not appear to have CRS info that can be accessed via the .crs method. If this occurs
-                    #assume it is in WGS84. All COGs in AWS appear to be projected in WGS84.
+                    # Retrieve COG CRS. Note: these COGs do not appear to have CRS info that can be accessed via the .crs method.
+                    # If this occurs assume it is in WGS84. All COGs in AWS appear to be projected in WGS84.
                     if src.crs is None:
                         metadata['crs'] = rasterio.crs.CRS.from_epsg(4326)
                     else:
                         metadata['crs'] = src.crs
 
-                    #Compute bounding box, image footprint, and gsd
+                    # Compute bounding box, image footprint, and gsd
                     bbox, footprint, metadata = _get_geometries(src, metadata)
 
-                #Derive some additional metadata from the filename
+                # Derive some additional metadata from the filename
                 fname = os.path.basename(href)
                 metadata = _parse_filename(fname, metadata)
 
@@ -68,16 +68,16 @@ class Rsat_Metadata():
                    scale can be 1,2,4,8,16. scale=1 creates most precise footprint
                    at the expense of reading all pixel values. scale=2 reads 1/4 amount
                    of data be overestimates footprint by at least 1pixel (20 meters).
-            precision: number of decimals to store for bounding box coordinates  
+            precision: number of decimals to store for bounding box coordinates
             """
 
-            #Get bounding box for raster in Lat/Long
+            # Get bounding box for raster in Lat/Long
             with rasterio.vrt.WarpedVRT(src, crs='EPSG:4326') as vrt:
                 bbox = [np.round(x, decimals=precision) for x in vrt.bounds]
                 metadata['transform'] = vrt.transform
 
-            #Get GSD in meters. Requires conversion to UTM. Appropriate UTM zone determined based on bbox centroid.
-            #Note: UTM may not always be appropriate for this sensor? (high/low latitudes?)
+            # Get GSD in meters. Requires conversion to UTM. Appropriate UTM zone determined based on bbox centroid.
+            # Note: UTM may not always be appropriate for this sensor? (high/low latitudes?)
             mid_lat = bbox[1] + ((bbox[3] - bbox[1]) / 2)
             mid_long = bbox[0] + ((bbox[2] - bbox[0]) / 2)
             utm_zone = utm.latlon_to_zone_number(mid_lat, mid_long)
@@ -127,6 +127,7 @@ class Rsat_Metadata():
             Args:
             filename: name of cog file
             metadata: dict of metadata
+
             Returns:
             metadata: updated metadata dictionary
             """
@@ -182,6 +183,7 @@ class Rsat_Metadata():
 def download_asset(cog_href: str, outpath: str) -> Optional[str]:
     """
     Download COG asset
+
     Args:
         cog_href (str): Location of associated COG asset
         href url should point to radarsat-1 data in s3 storage, e.g. "s3://radarsat-r1-l1-cog/2009/2/RS1_X0597984_F1_20090205_094341_HH_SGF.tif"
@@ -192,7 +194,8 @@ def download_asset(cog_href: str, outpath: str) -> Optional[str]:
     """
     bucket_name = "radarsat-r1-l1-cog"
 
-    if not os.path.exists(outpath): os.makedirs(outpath)
+    if not os.path.exists(outpath):
+        os.makedirs(outpath)
 
     s3_fpath = cog_href.split(bucket_name)[1][1:]
     fname = os.path.basename(cog_href)
