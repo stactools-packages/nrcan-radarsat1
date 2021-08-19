@@ -67,6 +67,7 @@ RADARSAT_EXTENT = Extent(
 
 RADARSAT_PRODUCT_DESCRIPTION = Link(
     rel="about",
-    target="https://earth.esa.int/eogateway/catalog/radarsat-1-2-full-archive-and-tasking",
+    target=
+    "https://earth.esa.int/eogateway/catalog/radarsat-1-2-full-archive-and-tasking",
     title="Data Products Specification",
 )
