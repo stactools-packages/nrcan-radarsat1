@@ -1,4 +1,4 @@
-import sat_properties
+from stactools.nrcan_radarsat1 import sat_properties
 import os
 import datetime
 from typing import Optional
@@ -41,8 +41,9 @@ class Rsat_Metadata():
                     metadata.update(src.tags())
                     metadata['shape'] = src.shape
 
-                    # Retrieve COG CRS. Note: these COGs do not appear to have CRS info that can be accessed via the .crs method.
-                    # If this occurs assume it is in WGS84. All COGs in AWS appear to be projected in WGS84.
+                    # Retrieve COG CRS. Note: these COGs do not appear to have CRS info that can be
+                    # accessed via the .crs method. If this occurs assume it is in WGS84.
+                    # All COGs in AWS appear to be projected in WGS84.
                     if src.crs is None:
                         metadata['crs'] = rasterio.crs.CRS.from_epsg(4326)
                     else:
@@ -64,7 +65,8 @@ class Rsat_Metadata():
             Args:
             src: COG file opened as Rasterio object
             metadata: dictionary containing COG metadata
-            scale: option to subsample image when computing footprint (better performance, worse accuracy).
+            scale: option to subsample image when computing footprint
+            (better performance, worse accuracy).
                    scale can be 1,2,4,8,16. scale=1 creates most precise footprint
                    at the expense of reading all pixel values. scale=2 reads 1/4 amount
                    of data be overestimates footprint by at least 1pixel (20 meters).
@@ -76,7 +78,8 @@ class Rsat_Metadata():
                 bbox = [np.round(x, decimals=precision) for x in vrt.bounds]
                 metadata['transform'] = vrt.transform
 
-            # Get GSD in meters. Requires conversion to UTM. Appropriate UTM zone determined based on bbox centroid.
+            # Get GSD in meters. Requires conversion to UTM. Appropriate UTM zone determined
+            # based on bbox centroid.
             # Note: UTM may not always be appropriate for this sensor? (high/low latitudes?)
             mid_lat = bbox[1] + ((bbox[3] - bbox[1]) / 2)
             mid_long = bbox[0] + ((bbox[2] - bbox[0]) / 2)
@@ -94,7 +97,8 @@ class Rsat_Metadata():
                 gsd = utm_vrt.transform[0]
                 metadata['gsd'] = round(gsd, 2)
 
-            # Get polygon covering entire valid data region. This might be a bit heavy of an operation. Could just use the bounds for geometry
+            # Get polygon covering entire valid data region.
+            # This might be a bit heavy of an operation. Could just use the bounds for geometry
             arr = src.read(1,
                            out_shape=(src.height // scale, src.width // scale))
             arr[np.where(arr != 0)] = 1
@@ -143,8 +147,8 @@ class Rsat_Metadata():
             try:
                 metadata[
                     "product_description"] = sat_properties.radarsat_1_data_products[
-                        fname[-1][:3]]
-            except:
+                        fname[-1][:3]]['description']
+            except Exception:
                 metadata["product_description"] = ""
 
             metadata["scene_mean_time"] = datetime.datetime.strptime(
@@ -155,14 +159,14 @@ class Rsat_Metadata():
         self.meta, self.bbox, self.geometry = _load_metadata_from_asset()
 
     @property
-    def epsg(self) -> Optional[str]:
+    def epsg(self) -> Optional[int]:
         '''returns image epsg code'''
         return self.meta['crs'].to_epsg()
 
     @property
     def orbit_state(self) -> Optional[str]:
         '''returns satellite orbit state'''
-        return self.meta['CEOS_ASC_DES'].strip()
+        return self.meta['CEOS_ASC_DES'].strip().lower()
 
     @property
     def absolute_orbit(self) -> Optional[int]:
@@ -186,12 +190,17 @@ def download_asset(cog_href: str, outpath: str) -> Optional[str]:
 
     Args:
         cog_href (str): Location of associated COG asset
-        href url should point to radarsat-1 data in s3 storage, e.g. "s3://radarsat-r1-l1-cog/2009/2/RS1_X0597984_F1_20090205_094341_HH_SGF.tif"
+        href url should point to radarsat-1 data in s3 storage,
+        e.g. "s3://radarsat-r1-l1-cog/2009/2/RS1_X0597984_F1_20090205_094341_HH_SGF.tif"
         outpath (str): Directory for outfile.
 
     Returns:
         path to file
     """
+
+    import warnings
+    warnings.simplefilter("ignore", ResourceWarning)
+
     bucket_name = "radarsat-r1-l1-cog"
 
     if not os.path.exists(outpath):
