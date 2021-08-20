@@ -1,9 +1,11 @@
+from datetime import datetime
 from pyproj import CRS
 import pystac
 from pystac.link import Link
 from pystac.extensions import sar
 from pystac.utils import str_to_datetime
-from pystac import Extent, SpatialExtent, TemporalExtent
+from pystac import Extent, SpatialExtent, TemporalExtent, ProviderRole
+from typing import Optional
 
 RADARSAT_ID = "radarsat-r1-l1-cog-aws"
 RADARSAT_EPSG = 4326
@@ -26,48 +28,52 @@ RADARSAT_POLARIZATIONS = [sar.Polarization.HH]
 
 RADARSAT_DATA_PROVIDER = pystac.Provider(
     name="Canadian Space Agency (CSA)",
-    roles=["producer", "licensor"],
-    url="http://www.asc-csa.gc.ca/eng/satellites/radarsat1/Default.asp")
+    roles=[ProviderRole.PRODUCER, ProviderRole.LICENSOR],
+    url="http://www.asc-csa.gc.ca/eng/satellites/radarsat1/Default.asp",
+)
 
 RADARSAT_PROCESSING_PROVIDER_1 = pystac.Provider(
     name="MDA Geospatial Services International.",
-    roles=["processor"],
-    url="https://mda.space/en/geo-intelligence/")
+    roles=[ProviderRole.PROCESSOR],
+    url="https://mda.space/en/geo-intelligence/",
+)
 
 RADARSAT_PROCESSING_PROVIDER_2 = pystac.Provider(
     name="Natural Resources Canada",
-    roles=["processor", "host"],
-    #url="https://nrcan.gc.ca",
-    url="https://registry.opendata.aws/radarsat-1/")
+    roles=[ProviderRole.PROCESSOR, ProviderRole.HOST],
+    # url="https://nrcan.gc.ca",
+    url="https://registry.opendata.aws/radarsat-1/",
+)
 
 RADARSAT_PROCESSING_PROVIDER_3 = pystac.Provider(
     name="Sparkgeo Consulting Inc.",
-    roles=["processor"],
+    roles=[ProviderRole.PROCESSOR],
     url="https://sparkgeo.com")
 
 RADARSAT_HOST_PROVIDER = pystac.Provider(name="Amazon Web Services",
-                                         roles=["host"],
+                                         roles=[ProviderRole.HOST],
                                          url="https://registry.opendata.aws/")
 
 RADARSAT_DESCRIPTION = (
     "Launched in November 1995, RADARSAT-1 provided Canada and the world with an "
     "operational radar satellite system capable of timely delivery of large amounts of data. "
-    "RADARSAT-1 used a synthetic aperture radar (SAR) sensor to image the Earth at a single microwave "
-    "frequency of 5.3 GHz, in the C band (wavelength of 5.6 cm). "
-    "This was a Canadian-led project involving the Canadian federal government, the Canadian provinces, "
-    "the United States, and the private sector. RADARSAT-1 reached end of service on March 29, 2013. "
-)
+    "RADARSAT-1 used a synthetic aperture radar (SAR) sensor to image the Earth at a single "
+    "microwave frequency of 5.3 GHz, in the C band (wavelength of 5.6 cm). "
+    "This was a Canadian-led project involving the Canadian federal government, "
+    "the Canadian provinces, the United States, and the private sector. "
+    "RADARSAT-1 reached end of service on March 29, 2013. ")
 
+START_TIME: Optional[datetime] = str_to_datetime("1995-11-04T14:22:00Z")
+END_TIME: Optional[datetime] = str_to_datetime("2013-03-29T00:00:00Z")
+
+TEMPORAL_EXTENT = [START_TIME, END_TIME]
 RADARSAT_EXTENT = Extent(
-    SpatialExtent([-180.0, -90.0, 180.0, 90.0]),
-    TemporalExtent([
-        str_to_datetime("1995-11-04T14:22:00Z"),
-        str_to_datetime("2013-03-29T00:00:00Z")
-    ]))
-
+    SpatialExtent([[-180.0, -90.0, 180.0, 90.0]]),
+    TemporalExtent([TEMPORAL_EXTENT]),
+)
+prod_link = 'https://earth.esa.int/eogateway/catalog/radarsat-1-2-full-archive-and-tasking'
 RADARSAT_PRODUCT_DESCRIPTION = Link(
     rel="about",
-    target=
-    "https://earth.esa.int/eogateway/catalog/radarsat-1-2-full-archive-and-tasking",
+    target=prod_link,
     title="Data Products Specification",
 )
