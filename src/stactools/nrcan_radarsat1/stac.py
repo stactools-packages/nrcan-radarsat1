@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-
+from typing import Optional
 import pystac
 from pystac.collection import Summaries
 from pystac.extensions.projection import ProjectionExtension
@@ -8,17 +8,17 @@ from pystac.extensions.sat import OrbitState, SatExtension
 from pystac.extensions.sar import SarExtension
 from pystac.extensions.raster import RasterExtension
 
-import constants as c
-from utils import Rsat_Metadata
+from stactools.nrcan_radarsat1 import constants as c
+from stactools.nrcan_radarsat1.utils import Rsat_Metadata
 
 logger = logging.getLogger(__name__)
 
 
-def create_collection(metadata_url: str) -> pystac.Collection:
+def create_collection(json_path: Optional[str] = None) -> pystac.Collection:
     """Creates a STAC Collection for RADARSAT-1
 
         Args:
-        metadata_url (str): Location to save the output STAC Collection json
+        json_path (str): Location to save the output STAC Collection json (not needed)
 
         Returns:
         pystac.Collection: pystac collection object
@@ -26,8 +26,8 @@ def create_collection(metadata_url: str) -> pystac.Collection:
 
     summary_dict = {
         'constellation': [c.RADARSAT_CONSTELLATION],
-        'platform': c.RADARSAT_PLATFORM,
-        'proj:epsg': c.RADARSAT_EPSG,
+        'platform': [c.RADARSAT_PLATFORM],
+        'proj:epsg': [c.RADARSAT_EPSG],
     }
     collection = pystac.Collection(
         id=c.RADARSAT_ID,
@@ -53,20 +53,16 @@ def create_collection(metadata_url: str) -> pystac.Collection:
     collection.add_link(c.RADARSAT_LICENSE_LINK)
     collection.add_link(c.RADARSAT_PRODUCT_DESCRIPTION)
 
-    collection.set_self_href(metadata_url)
-
-    collection.save_object()
-
     return collection
 
 
-def create_item(metadata_url: str, cog_href: str) -> pystac.Item:
+def create_item(cog_href: str) -> pystac.Item:
     """Creates a STAC item for a RADARSAT-1 COG image.
 
     Args:
-        metadata_url (str): Output path for the STAC json
         cog_href (str): Location of associated COG asset
-        href url should point to radarsat-1 data in s3 storage, e.g. "s3://radarsat-r1-l1-cog/2009/2/RS1_X0597984_F1_20090205_094341_HH_SGF.tif"
+        href url should point to radarsat-1 data in s3 storage,
+        e.g. "s3://radarsat-r1-l1-cog/2009/2/RS1_X0597984_F1_20090205_094341_HH_SGF.tif"
 
     Returns:
         pystac.Item: STAC Item object.
@@ -124,8 +120,8 @@ def create_item(metadata_url: str, cog_href: str) -> pystac.Item:
 
     # SAT https://github.com/stac-extensions/sat
     sat = SatExtension.ext(item, add_if_missing=True)
-    sat.orbit_state = OrbitState(rsat_metadata.orbit_state.lower())
-    sat.absolute_orbit = rsat_metadata.absolute_orbit  # Not totally sure this one is correct, but I believe it is
+    sat.orbit_state = OrbitState(rsat_metadata.orbit_state)
+    sat.absolute_orbit = rsat_metadata.absolute_orbit
     # sat.relative_orbit = rsat_metadata.relative_orbit # Can't find this property for Radarsat-1
 
     # PROJECTION https://github.com/stac-extensions/projection
@@ -145,8 +141,5 @@ def create_item(metadata_url: str, cog_href: str) -> pystac.Item:
     )
 
     item.links.append(c.RADARSAT_LICENSE_LINK)
-    item.set_self_href(metadata_url)
-
-    item.save_object()
 
     return item
