@@ -1,53 +1,101 @@
-import click
 import logging
+import click
+import os
 
-from stactools.nrcan_radarsat1 import stac
+from stactools.nrcan_radarsat1.stac import create_collection, create_item
+from stactools.nrcan_radarsat1.utils import download_asset
 
 logger = logging.getLogger(__name__)
 
 
 def create_nrcanradarsat1_command(cli):
-    """Creates the stactools-nrcan-radarsat1 command line utility."""
+    """Creates a command line utility for working with Radarsat-1 cogs"""
     @cli.group(
         "nrcanradarsat1",
-        short_help=("Commands for working with stactools-nrcan-radarsat1"),
+        short_help=("Commands for working with Radarsat-1 data"),
     )
-    def nrcanradarsat1():
+    def nrcanradarsat1() -> None:
         pass
 
     @nrcanradarsat1.command(
         "create-collection",
-        short_help="Creates a STAC collection",
+        short_help="Creates a STAC collection from Radarsat-1 metadata",
     )
-    @click.argument("destination")
-    def create_collection_command(destination: str):
-        """Creates a STAC Collection
+    @click.option(
+        "-d",
+        "--destination",
+        required=True,
+        help="The output directory for the STAC Collection json",
+    )
+    def create_collection_command(destination: str) -> None:
+        """Creates a STAC Collection for Radarsat-1 data
 
         Args:
-            destination (str): An HREF for the Collection JSON
+            destination (str): Directory to create the collection json
+        Returns:
+            Callable
         """
-        collection = stac.create_collection()
 
-        collection.set_self_href(destination)
+        output_path = os.path.join(destination, "collection.json")
 
-        collection.save_object()
+        collection = create_collection(output_path)
+        collection.set_self_href(output_path)
+        collection.save_object(dest_href=output_path)
 
-        return None
-
-    @nrcanradarsat1.command("create-item", short_help="Create a STAC item")
-    @click.argument("source")
-    @click.argument("destination")
+    @nrcanradarsat1.command(
+        "create-item",
+        short_help="Create a STAC item from a Radarsat-1 COG",
+    )
+    @click.option(
+        "-s",
+        "--source",
+        required=True,
+        help="Path to a Radarsat-1 COG",
+    )
+    @click.option(
+        "-d",
+        "--destination",
+        required=True,
+        help="The output directory for the STAC json",
+    )
     def create_item_command(source: str, destination: str):
-        """Creates a STAC Item
+        """Creates a STAC Item from a Radarsat-1 COG
 
         Args:
-            source (str): HREF of the Asset associated with the Item
-            destination (str): An HREF for the STAC Collection
+            source (str): Path to a Radarsat-1 COG
+            destination (str): Directory to create the stac item json
+        Returns:
+            Callable
         """
-        item = stac.create_item(source)
+        output_path = os.path.join(destination,
+                                   os.path.basename(source)[:-4] + ".json")
+        item = create_item(source)
+        item.set_self_href(output_path)
+        item.save_object(dest_href=output_path)
 
-        item.save_object(dest_href=destination)
+    @nrcanradarsat1.command(
+        "download-asset",
+        short_help="Downloads a Radarsat-1 COG from AWS link",
+    )
+    @click.option(
+        "-s",
+        "--source",
+        required=True,
+        help="Path to a Radarsat-1 COG",
+    )
+    @click.option(
+        "-d",
+        "--destination",
+        required=True,
+        help="The output directory for the COG file",
+    )
+    def download_asset_command(source: str, destination: str):
+        """Downloads a Radarsat-1 COG
 
-        return None
-
-    return nrcanradarsat1
+        Args:
+            source (str): url for Radarsat-1 COG
+            destination (str): Directory to download the COG
+        Returns:
+            Callable
+        """
+        download_asset(source, destination)
