@@ -8,7 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Nothing.
+- Added constants.py
+- Added utils.py
+- Added STAC Collection creation
+- Added STAC Item creation
+- Added testing scripts and test data
 
 ### Deprecated
 
